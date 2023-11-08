@@ -96,6 +96,25 @@ $username = $_SESSION['username'];
     </div>
     <!-- Header End -->
 
+    <div class="container">
+        <div class="row" style="padding-top:20px">
+            <div class="col-md-4" style="max-width:160px">
+                <div class="dropdown">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" id="merchantSelectButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Select Merchant
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="merchantSelectButton">
+                    <!-- Dynamic merchant names will be populated here -->
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <button id="fetchDataButton" class="btn btn-primary">Fetch Data</button>
+            </div>
+        </div>
+    </div>
+
+    
     <div class="contaianer">
         <div class="container-fluid">
             <div class="row" style="padding-left:3%; ">
@@ -169,18 +188,55 @@ $username = $_SESSION['username'];
 
 <script>
     $(document).ready(function(){
-        makechart();
-
-        function makechart(){
-            var currentUser = "<?php echo $username;?>";
-            console.log('Current User: '+currentUser);
-
+        var selectedMerchant='';
+        var graph1,graph2;
+        populateMerchantDropdown();
+        
+        function populateMerchantDropdown() {
             $.ajax({
-                url:"data.php",
+                url: "fetchMerchantNames.php",
+                dataType: "json",
+                success: function (data) {
+                    var dropdownMenu = $('#merchantSelectButton').next('.dropdown-menu');
+                    dropdownMenu.empty();
+
+                    data.forEach(function (merchant) {
+                        dropdownMenu.append('<a class="dropdown-item merchant-item" href="#" data-merchant="' + merchant + '">' + merchant + '</a>');
+                    });
+
+                // Update the selectedMerchant when a merchant is clicked
+                    $('.merchant-item').on('click', function () {
+                        selectedMerchant = $(this).data('merchant');
+                        $('#merchantSelectButton').text( selectedMerchant);
+                    });
+                },
+                error: function (error) {
+                    console.log("Error fetching merchant names:");
+                    console.log(error);
+                }
+            });
+            }
+
+            $('#fetchDataButton').click(function () {
+                // Clear the previous chart data
+                
+            if (graph1) {
+                graph1.destroy();
+            }
+            if (graph2) {
+                graph2.destroy();
+            }
+                makechart(selectedMerchant); 
+            });
+            
+
+        function makechart(selectedMerchant){
+            $.ajax({
+                url:"dataAdmin.php",
                 method:"POST",
                 data:{
                 action:'fetch',
-                currentUser:currentUser
+                selectedMerchant: selectedMerchant
                 },
                 dataType:"JSON",
                 success:function(data)
@@ -197,16 +253,14 @@ $username = $_SESSION['username'];
                         color.push(data[count].color);
                     };
 
-
                     var chart_data = {
-                        labels:  product_name,
+                        labels: product_name,
                         datasets:[
                             {
                                 label:'Number Sold',
                                 backgroundColor:color,
                                 color:'#fff',
                                 data:total
-                                
                             }
                         ]
                     };
@@ -234,20 +288,20 @@ $username = $_SESSION['username'];
                         }
                     };
 
+                    
                     var group_chart1 = $('#product_sold');
-
-                    var graph1 = new Chart(group_chart1,{
-                        type:"bar",
-                        data:chart_data,
-                        options:options
-                    });
-
                     var group_chart2 = $('#cus_pur_pow');
 
-                    var graph2 = new Chart(group_chart2,{
-                        type:"bar",
-                        data:chart_data1,
-                        options:options
+                    graph1 = new Chart(group_chart1, {
+                        type: "bar",
+                        data: chart_data,
+                        options: options,
+                     });
+
+                    graph2 = new Chart(group_chart2, {
+                        type: "bar",
+                        data: chart_data1,
+                        options: options,
                     });
                 },
                 error: function(error){
@@ -256,5 +310,6 @@ $username = $_SESSION['username'];
                 }
             })
         }
-    });
+    }
+    );
 </script>

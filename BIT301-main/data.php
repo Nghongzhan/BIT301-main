@@ -4,20 +4,28 @@
 
     if(isset($_POST["action"])){
         if($_POST["action"]=='fetch'){
+            $currentUser = $_POST["currentUser"];
             $query = "
-            SELECT *, COUNT(Quantity) AS Total 
+            SELECT new_product.product_name,purchasedb.TotalPrice, SUM(purchasedb.Quantity) AS Total 
             FROM purchasedb
-            GROUP BY product_name
+            INNER JOIN new_product ON purchasedb.id = new_product.id
+            WHERE new_product.username = :currentUser
+            GROUP BY new_product.product_name
             ";
 
-            $result = $connect->query($query);
+            $stmt = $connect->prepare($query);
+            $stmt->bindParam(':currentUser',$currentUser);
+            $stmt->execute();
+
+            //$result = $connect->query($query);
 
             $data = array();
 
-            foreach($result as $row){
+            foreach($stmt as $row){
                 $data[] = array(
-                    'product_name'=>$row["product"],
+                    'product_name'=>$row["product_name"],
                     'total'=>$row["Total"],
+                    'price'=>$row["TotalPrice"],
                     'color'=>'#'.rand(100000,999999).''
                 );
             }

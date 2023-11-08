@@ -29,7 +29,7 @@ $result = mysqli_query($conn, $query)
 
 ?>
 
-    <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -81,8 +81,9 @@ $result = mysqli_query($conn, $query)
                     <div class="navbar-nav ml-auto py-0">
                         <a href="index.php" class="nav-item nav-link active">Home</a>
                         <!--<a href="about.html" class="nav-item nav-link">About</a>-->
-                        <a href="service.html" class="nav-item nav-link">Services</a>
-                        <a href="package.html" class="nav-item nav-link">Tour Packages</a>
+                        <!--<a href="service.html" class="nav-item nav-link">Services</a>-->
+                        <!--<a href="package.html" class="nav-item nav-link">Tour Packages</a>-->
+                        <a href="viewAnalyticsAdmin.php" class="nav-item nav-link">Analytics</a>
                         <!--
                         <div class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Pages</a>
